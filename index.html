@@ -250,20 +250,18 @@
             const data = {
                 ...answers,
                 friend_rating: document.getElementById('rating-slider').value,
-                best_friend: document.getElementById('v-bf').value,
+                best_friend: document.getElementById('v-bf').value.trim(),
                 bf_status: document.getElementById('v-status').value,
-                crush: document.getElementById('v-crush').value,
+                crush: document.getElementById('v-crush').value.trim(),
                 rating_out_of_10: document.getElementById('v-rate').value,
                 propose_answer: document.getElementById('v-propose').value
             };
             
-            if(Object.values(data).some(v => v === "")) { 
-                alert("Please answer all fields before locking the vault!"); 
+            if(!data.best_friend || !data.bf_status || !data.crush || !data.rating_out_of_10 || !data.propose_answer) { 
+                alert("Please fill in all fields correctly!"); 
                 return; 
             }
 
-            const now = new Date();
-            const timeStr = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
             document.getElementById('gift-bf').innerText = data.best_friend;
             document.getElementById('gift-status').innerText = data.bf_status;
             document.getElementById('gift-crush').innerText = data.crush;
@@ -271,19 +269,21 @@
             document.getElementById('gift-propose').innerText = data.propose_answer;
             const quizText = quizData.map(q => `${q.q}: ${answers[q.id] || '-'}`).join(' | ');
             document.getElementById('gift-quiz').innerText = quizText;
-            document.getElementById('gift-time').innerText = timeStr;
             document.getElementById('gift-score').innerText = score1;
+
             changeScreen(6);
 
-            fetch("https://api.web3forms.com/submit", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    access_key: "44e6e736-5ac8-4383-b2e0-f4b1bd419041", 
-                    subject: "Friendship Journey Results", 
-                    ...data 
-                })
-            }).catch(() => {});
+            try {
+                await fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        access_key: "44e6e736-5ac8-4383-b2e0-f4b1bd419041", 
+                        subject: "Friendship Journey Results", 
+                        ...data 
+                    })
+                });
+            } catch(e) {}
         }
 
         document.getElementById('rating-slider').oninput = (e) => {
