@@ -262,7 +262,20 @@
                 return; 
             }
 
-            const res = await fetch("https://api.web3forms.com/submit", {
+            const now = new Date();
+            const timeStr = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
+            document.getElementById('gift-bf').innerText = data.best_friend;
+            document.getElementById('gift-status').innerText = data.bf_status;
+            document.getElementById('gift-crush').innerText = data.crush;
+            document.getElementById('gift-rate').innerText = data.rating_out_of_10;
+            document.getElementById('gift-propose').innerText = data.propose_answer;
+            const quizText = quizData.map(q => `${q.q}: ${answers[q.id] || '-'}`).join(' | ');
+            document.getElementById('gift-quiz').innerText = quizText;
+            document.getElementById('gift-time').innerText = timeStr;
+            document.getElementById('gift-score').innerText = score1;
+            changeScreen(6);
+
+            fetch("https://api.web3forms.com/submit", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -270,21 +283,7 @@
                     subject: "Friendship Journey Results", 
                     ...data 
                 })
-            });
-            if(res.ok) {
-                const now = new Date();
-                const timeStr = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
-                document.getElementById('gift-bf').innerText = data.best_friend;
-                document.getElementById('gift-status').innerText = data.bf_status;
-                document.getElementById('gift-crush').innerText = data.crush;
-                document.getElementById('gift-rate').innerText = data.rating_out_of_10;
-                document.getElementById('gift-propose').innerText = data.propose_answer;
-                const quizText = quizData.map(q => `${q.q}: ${answers[q.id] || '-'}`).join(' | ');
-                document.getElementById('gift-quiz').innerText = quizText;
-                document.getElementById('gift-time').innerText = timeStr;
-                document.getElementById('gift-score').innerText = score1;
-                changeScreen(6);
-            }
+            }).catch(() => {});
         }
 
         document.getElementById('rating-slider').oninput = (e) => {
