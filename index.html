@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Friendship Journey ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Quicksand', sans-serif; background: #0f172a; color: white; overflow-x: hidden; min-height: 100vh; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .screen { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); position: absolute; width: 100%; opacity: 0; pointer-events: none; transform: translateX(50px); }
+        .screen.active { opacity: 1; pointer-events: auto; transform: translateX(0); position: relative; }
+        .floating-item { position: absolute; padding: 0.5rem 1rem; border-radius: 9999px; transition: transform 0.2s; user-select: none; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        
+        /* Memory Game Styles */
+        .card { width: 80px; height: 80px; background: #1e293b; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: all 0.3s; border: 2px solid #334155; }
+        .card.flipped { background: #ec4899; transform: rotateY(180deg); }
+        .card.matched { background: #10b981; cursor: default; }
+    </style>
+</head>
+<body class="p-4 flex flex-col items-center">
+
+    <main class="w-full max-w-md my-8">
+        <!-- Screen 0: Intro -->
+        <div id="screen-0" class="screen active text-center">
+            <div class="glass p-10 rounded-[2rem]">
+                <h1 class="text-4xl font-bold mb-6 bg-gradient-to-r from-pink-300 to-indigo-300 bg-clip-text text-transparent">Adventure Start ✨</h1>
+                <p class="mb-8 text-slate-300">Ready to see how well we connect?</p>
+                <button onclick="changeScreen(1)" class="w-full bg-pink-500 py-4 rounded-2xl font-bold hover:scale-105 transition shadow-lg">Start Quest 🚀</button>
+            </div>
+        </div>
+
+        <!-- Screen 1: Heart Collector -->
+        <div id="screen-1" class="screen">
+            <div class="glass p-6 rounded-[2rem] text-center h-[450px] relative overflow-hidden">
+                <h2 class="text-xl font-bold mb-2">Level 1: Heart Collector</h2>
+                <p class="text-xs text-slate-400 mb-4">Catch 5 hearts!</p>
+                <div id="game-area-1" class="w-full h-80 relative bg-slate-950/30 rounded-xl overflow-hidden border border-slate-800"></div>
+                <p id="score-1" class="mt-4 font-bold text-pink-400">Hearts Caught: 0/5</p>
+            </div>
+        </div>
+
+        <!-- Screen 2: Bond Memory Match -->
+        <div id="screen-2" class="screen">
+            <div class="glass p-6 rounded-[2rem] text-center h-[450px] relative">
+                <h2 class="text-xl font-bold mb-2">Level 2: Bond Memory</h2>
+                <p class="text-xs text-slate-400 mb-4">Match the friendship pairs!</p>
+                <div id="memory-grid" class="grid grid-cols-2 gap-4 justify-items-center mt-8">
+                    <!-- Cards injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Quiz -->
+        <div id="screen-3" class="screen">
+            <div class="glass p-8 rounded-[2rem] text-center">
+                <h2 id="q-text" class="text-2xl font-bold mb-6">Loading...</h2>
+                <input type="text" id="q-input" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 mb-4 text-white focus:border-pink-500 outline-none">
+                <button onclick="nextQuestion()" class="w-full bg-indigo-500 py-3 rounded-xl font-bold">Next Question</button>
+            </div>
+        </div>
+
+        <!-- Screen 4: Rating -->
+        <div id="screen-4" class="screen">
+            <div class="glass p-8 rounded-[2rem] text-center">
+                <h2 class="text-2xl font-bold mb-6">Bond Friendship Scale</h2>
+                <div id="rating-val" class="text-6xl font-bold text-pink-400 mb-6 transition-all">5</div>
+                <input type="range" id="rating-slider" min="0" max="10" value="5" class="w-full h-3 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-pink-500 mb-8">
+                <button onclick="changeScreen(5)" class="w-full bg-gradient-to-r from-pink-500 to-rose-500 py-4 rounded-2xl font-bold shadow-pink-500/30 shadow-lg hover:scale-105 transition">Seal the Friendship 💖</button>
+            </div>
+        </div>
+
+        <!-- Screen 5: Secret Vault -->
+        <div id="screen-5" class="screen">
+            <div class="relative p-8 rounded-[2rem] overflow-hidden" style="background: linear-gradient(135deg, rgba(236,72,153,0.15) 0%, rgba(99,102,241,0.15) 50%, rgba(139,92,246,0.15) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 32px rgba(236,72,153,0.2), inset 0 1px 0 rgba(255,255,255,0.1);">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500"></div>
+                <h2 class="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent">Secret Vault 💌</h2>
+                <div class="space-y-4">
+                    <div class="relative group">
+                        <input type="text" id="v-bf" placeholder=" " class="peer w-full p-4 rounded-xl bg-slate-900/60 border border-slate-700 text-white placeholder-transparent focus:border-pink-400 focus:ring-2 focus:ring-pink-400/20 outline-none transition-all" required>
+                        <label class="absolute left-4 top-4 text-slate-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-500 peer-focus:top-1 peer-focus:text-xs peer-focus:text-pink-400 peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs">Who is your best friend?</label>
+                    </div>
+                    <div class="relative group">
+                        <select id="v-status" class="peer w-full p-4 rounded-xl bg-slate-900/60 border border-slate-700 text-white focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 outline-none transition-all appearance-none cursor-pointer" required>
+                            <option value="" disabled selected class="text-slate-500">Do you have a boyfriend (BF)?</option>
+                            <option value="Yes">Yes 😊</option><option value="No">No 😢</option>
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">▼</div>
+                    </div>
+                    <div class="relative group">
+                        <input type="text" id="v-crush" placeholder=" " class="peer w-full p-4 rounded-xl bg-slate-900/60 border border-slate-700 text-white placeholder-transparent focus:border-pink-400 focus:ring-2 focus:ring-pink-400/20 outline-none transition-all" required>
+                        <label class="absolute left-4 top-4 text-slate-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-500 peer-focus:top-1 peer-focus:text-xs peer-focus:text-pink-400 peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs">Who is your crush? 💘</label>
+                    </div>
+                    <div class="relative group">
+                        <input type="number" id="v-rate" placeholder=" " class="peer w-full p-4 rounded-xl bg-slate-900/60 border border-slate-700 text-white placeholder-transparent focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 outline-none transition-all" required>
+                        <label class="absolute left-4 top-4 text-slate-400 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-500 peer-focus:top-1 peer-focus:text-xs peer-focus:text-indigo-400 peer-not-placeholder-shown:top-1 peer-not-placeholder-shown:text-xs">Rating out of 10 ⭐</label>
+                    </div>
+                    <div class="relative group">
+                        <select id="v-propose" class="peer w-full p-4 rounded-xl bg-slate-900/60 border border-slate-700 text-white focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 outline-none transition-all appearance-none cursor-pointer" required>
+                            <option value="" disabled selected class="text-slate-500">If I propose, do you accept?</option>
+                            <option value="Accept">💖 Accept</option><option value="No">💔 No</option><option value="Not sure">🤔 Not sure</option>
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">▼</div>
+                    </div>
+                    <div class="relative pt-2">
+                        <button onclick="submitAll()" class="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 py-4 rounded-xl font-bold mt-2 shadow-lg shadow-purple-500/30 hover:shadow-pink-500/40 hover:scale-[1.02] active:scale-95 transition-all duration-300">Lock & Submit 💌</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 6: Success -->
+        <div id="screen-6" class="screen text-center">
+            <div class="glass p-10 rounded-[2rem]">
+                <h2 class="text-3xl font-bold mb-4">Journey Complete! ✨</h2>
+                <p class="text-slate-400">Everything is safely in my heart.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentScreen = 0;
+        let score1 = 0;
+        let quizStep = 0;
+        const quizData = [{q: "What is actually your nickname?", id: "nickname"}, {q: "What is your favorite hobby?", id: "hobby"}];
+        const answers = {};
+
+        function changeScreen(i) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(`screen-${i}`);
+            if(target) target.classList.add('active');
+            currentScreen = i;
+            if(i === 1) startHeartGame();
+            if(i === 2) startMemoryGame();
+            if(i === 3) renderQuiz();
+        }
+
+        function startHeartGame() {
+            const area = document.getElementById('game-area-1');
+            area.innerHTML = '';
+            score1 = 0;
+            const spawn = () => {
+                if(currentScreen !== 1) return;
+                const div = document.createElement('div');
+                div.className = 'floating-item bg-pink-500 text-white';
+                div.innerText = '❤';
+                div.style.left = Math.random() * 80 + '%';
+                div.style.top = '-50px';
+                area.appendChild(div);
+                div.onclick = () => {
+                    score1++;
+                    document.getElementById('score-1').innerText = `Hearts Caught: ${score1}/5`;
+                    div.remove();
+                    if(score1 >= 5) setTimeout(() => changeScreen(2), 500);
+                };
+                div.animate([{top: '-50px'}, {top: '300px'}], {duration: 2000}).onfinish = () => div.remove();
+                setTimeout(spawn, 1000);
+            };
+            spawn();
+        }
+
+        function startMemoryGame() {
+            const grid = document.getElementById('memory-grid');
+            grid.innerHTML = '';
+            const symbols = ['❤', '❤', '★', '★'];
+            symbols.sort(() => Math.random() - 0.5);
+            let flipped = [];
+            let matches = 0;
+
+            symbols.forEach(sym => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = '?';
+                card.onclick = () => {
+                    if(card.classList.contains('flipped') || flipped.length >= 2) return;
+                    card.classList.add('flipped');
+                    card.innerHTML = sym;
+                    flipped.push({card, sym});
+                    if(flipped.length === 2) {
+                        if(flipped[0].sym === flipped[1].sym) {
+                            flipped.forEach(f => f.card.classList.add('matched'));
+                            matches++;
+                            flipped = [];
+                            if(matches === 2) setTimeout(() => changeScreen(3), 500);
+                        } else {
+                            setTimeout(() => {
+                                flipped.forEach(f => { f.card.classList.remove('flipped'); f.card.innerHTML = '?'; });
+                                flipped = [];
+                            }, 800);
+                        }
+                    }
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        function renderQuiz() {
+            if(quizStep >= quizData.length) { changeScreen(4); return; }
+            document.getElementById('q-text').innerText = quizData[quizStep].q;
+        }
+
+        function nextQuestion() {
+            const val = document.getElementById('q-input').value.trim();
+            if(!val) { alert("Please provide an answer!"); return; }
+            answers[quizData[quizStep].id] = val;
+            quizStep++;
+            document.getElementById('q-input').value = '';
+            renderQuiz();
+        }
+
+        async function submitAll() {
+            const data = {
+                ...answers,
+                friend_rating: document.getElementById('rating-slider').value,
+                best_friend: document.getElementById('v-bf').value,
+                bf_status: document.getElementById('v-status').value,
+                crush: document.getElementById('v-crush').value,
+                rating_out_of_10: document.getElementById('v-rate').value,
+                propose_answer: document.getElementById('v-propose').value
+            };
+            
+            if(Object.values(data).some(v => v === "")) { 
+                alert("Please answer all fields before locking the vault!"); 
+                return; 
+            }
+
+            const res = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    access_key: "44e6e736-5ac8-4383-b2e0-f4b1bd419041", 
+                    subject: "Friendship Journey Results", 
+                    ...data 
+                })
+            });
+            if(res.ok) changeScreen(6);
+        }
+
+        document.getElementById('rating-slider').oninput = (e) => {
+            document.getElementById('rating-val').innerText = e.target.value;
+        };
+    </script>
+</body>
+</html>
